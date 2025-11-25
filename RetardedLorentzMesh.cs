@@ -1,7 +1,6 @@
 using System;
-using NUnit.Framework.Internal;
-using Unity.Mathematics;
 using UnityEngine;
+using Unity.Mathematics;
 
 [RequireComponent(typeof(MeshFilter))]
 public class RetardedLorentzMesh : MonoBehaviour
@@ -24,24 +23,6 @@ public class RetardedLorentzMesh : MonoBehaviour
     void Start()
     {
         originalMesh = GetComponent<MeshFilter>().sharedMesh;
-
-
-        Mesh mesh = originalMesh;
-
-        // 1. Get the current vertices
-        Vector3[] vertices = mesh.vertices;
-
-        // 2. Iterate and multiply each vertex position by the scale factor
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            vertices[i] *= 1f;
-        }
-
-        // 3. Reassign the modified vertices back to the mesh
-        mesh.vertices = vertices;
-
-        originalMesh = mesh;
-
         displacedMesh = Instantiate(originalMesh);
         GetComponent<MeshFilter>().mesh = displacedMesh;
 
@@ -72,15 +53,15 @@ public class RetardedLorentzMesh : MonoBehaviour
         Vector3 vPlayer0 = -Player.linearVelocity;//.GetComponent<PlayerMover>().velocityWorld;
         Vector3 vObject0 = -Object.linearVelocity;//.GetComponent<ObjectMover>().velocityWorld;
         float vPlayer2 = vPlayer0.x * vPlayer0.x + vPlayer0.y * vPlayer0.y + vPlayer0.z * vPlayer0.z;
-        float EPlayer1 = Mathf.Sqrt(c*c + vPlayer2);
+        float EPlayer1 = Mathf.Sqrt(1 + vPlayer2);
         float vObject2 = vObject0.x * vObject0.x + vObject0.y * vObject0.y + vObject0.z * vObject0.z;
-        float EObject1 = Mathf.Sqrt(c*c + vObject2);
+        float EObject1 = Mathf.Sqrt(1 + vObject2);
         Vector3 vPlayer = vPlayer0 / EPlayer1;
         Vector3 vObject = vObject0 / EObject1;
-        Matrix4x4 Lplayer = LorentzMatrix.GetInverseBoost(vPlayer, 1);
-        Matrix4x4 Lplayer_inv = LorentzMatrix.GetInverseBoost(-vPlayer, 1);
-        Matrix4x4 Lobject = LorentzMatrix.GetInverseBoost(vObject, 1);
-        Matrix4x4 Lobject_inv = LorentzMatrix.GetInverseBoost(-vObject, 1);
+        Matrix4x4 Lplayer = LorentzMatrix.GetInverseBoost(vPlayer, c);
+        Matrix4x4 Lplayer_inv = LorentzMatrix.GetInverseBoost(-vPlayer, c);
+        Matrix4x4 Lobject = LorentzMatrix.GetInverseBoost(vObject, c);
+        Matrix4x4 Lobject_inv = LorentzMatrix.GetInverseBoost(-vObject, c);
 
         Vector3 PlayerPos = Player.position;
 

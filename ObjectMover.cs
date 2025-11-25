@@ -29,7 +29,7 @@ public class ObjectMover : MonoBehaviour
         float v = velocityWorld.magnitude;
         float gamma = 1f / Mathf.Sqrt(1f - (v * v) / (c * c));
         rb.linearVelocity = velocityWorld * gamma;
-        // Time.timeScale = 1f;
+        Time.timeScale = 1f;
     }
 
 

@@ -24,9 +24,9 @@ G = 0.001
 damping = 0.01
 
 # Safety tuning
-v_max = 100.0
+v_max = 10.0
 eps_safe = 1e-12
-save_interval = 100
+save_interval = 1e10
 max_ppc = 64
 threads_per_block = 128
 
@@ -41,7 +41,7 @@ lin = cp.linspace(0, box_size, points_per_dim, endpoint=False, dtype=cp.float32)
 X, Y = cp.meshgrid(lin, lin, indexing='ij')
 positions = cp.vstack([X.ravel(), Y.ravel()]).T[:N].astype(cp.float32)
 positions += (cp.random.rand(N, 2).astype(cp.float32) - 0.5) * 0.1
-velocities = (cp.random.rand(N, 2).astype(cp.float32) - 0.5) * 5
+velocities = (cp.random.rand(N, 2).astype(cp.float32) - 0.5) * 10
 
 # -----------------------------
 # CUDA Kernels

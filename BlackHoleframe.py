@@ -139,6 +139,111 @@ def Connection(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz):
                     L12[o,u,v]=L12[o,u,v]+(g[o,p]*B[u,v,p]/2)
     return L12
 
+# WIP
+
+def spin_connection(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz):
+    # e_mu_a: tetrad with first index mu (row) and second index a (col) as in your code
+    e = Tetrad(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz)
+    inv_e = np.linalg.inv(e)   # inverse tetrad
+    Gam = Connection(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz)  # Gamma^o_{uv} as provided
+    # compute partial_mu e^lambda{}_b using finite difference (reuse diff0)
+    d = diff0
+    dE = np.zeros((4,4,4))  # dE[mu,lambda,b]
+    for mu in range(0,4):
+        for u in range(0,4):
+            for a0 in range(0,4):
+                Xp = [t,x,y,z].copy()
+                Xp[mu] += d
+                Ep = Tetrad(m,a,Xp[0],Xp[1],Xp[2],Xp[3],Kx,Ky,Kz,Jx,Jy,Jz)
+                Xm = [t,x,y,z].copy()
+                Xm[mu] -= d
+                Em = Tetrad(m,a,Xm[0],Xm[1],Xm[2],Xm[3],Kx,Ky,Kz,Jx,Jy,Jz)
+                dE[mu,u,a0] = (Ep[u,a0] - Em[u,a0])/(2*d)
+    # now compute omega_mu^{ab}
+    omega = np.zeros((4,4,4))
+    eta = MinkowskiMetric()
+    G = KerrMetric(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz)
+    term1 = dE #np.zeros((4,4,4))
+    for mu in range(0,4):
+        for nu in range(0,4):
+            for B in range(0,4):
+                for sigma in range(0,4):
+                    term1[mu,nu,B] += + Gam[nu,sigma,mu] * e[sigma,B]
+    e1 = np.zeros((4,4))
+    for A in range(0,4):
+        for u in range(0,4):
+            for v in range(0,4):
+                e1[v,A] += e[u,A] * G[u,v]
+    for A in range(0,4):
+        for B in range(0,4):
+            for mu in range(0,4):
+                for nu in range(0,4):
+                    omega[mu,A,B] += e1[nu,A] * term1[mu,nu,B]
+    # impose antisymmetry in a,b if needed: (omega_{mu}^{ab} = -omega_{mu}^{ba})
+    return omega
+### wrong
+def curved_gammas(e):
+    inv_e = np.linalg.inv(e)   # e^mu_a
+    gammas_frame = gamma  # your gamma[0..3,:,:] arrays
+    G = np.zeros((4,4,4), dtype=float)
+    for mu in range(4):
+        mat = np.zeros((4,4))
+        for a_idx in range(4):
+            mat += inv_e[mu,a_idx] * gammas_frame[a_idx,:,:]
+        G[mu,:,:] = mat
+    return G
+
+def spinor_connection_matrices(omega):
+    # returns S_mu (4 matrices 4x4)
+    S = [np.zeros((4,4)) for _ in range(4)]
+    for mu in range(4):
+        Smu = np.zeros((4,4))
+        for a_idx in range(4):
+            for b_idx in range(4):
+                Smu += 0.25 * omega[mu,a_idx,b_idx] * (gamma[a_idx,:,:] @ gamma[b_idx,:,:])
+        S[mu] = Smu
+    return S
+
+def Dirac_operator_action(psi_vec, m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz):
+    e = Tetrad(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz)
+    Gammas = curved_gammas(e)
+    omega = spin_connection(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz)
+    S = spinor_connection_matrices(omega)
+    # compute partial_mu psi (finite differences or spectral)
+    # Here show symbolic local action: (i * Gamma^mu (partial_mu + S_mu) - m) psi
+    # Implement finite diff for time evolution separately (see next)
+    #return #operator_matrix  # you can build local 4x4 matrix per derivative + multiply by derivatives
+
+##
+
+print(spin_connection(0.5,0.1,0,10,1,0.1,0,0,0,0,0,0))
+
+##
+
+import numpy as np
+
+def asym_norm(omega):
+    A = omega + np.swapaxes(omega,1,2)
+    return np.max(np.abs(A)), np.argmax(np.abs(A)), A
+
+for d in [1e-8, 5e-9, 2.5e-9, 1.25e-9]:
+    diff0 = d
+    # make sure your spin_connection uses the global diff0 or pass it in
+    omega = spin_connection(m=1.0, a=0.5,
+                            t=0.0, x=2.0, y=0.1, z=0.2,
+                            Kx=0,Ky=0,Kz=0,Jx=0,Jy=0,Jz=0)
+    mx, idx, A = asym_norm(omega)
+    print("d=", d, "max asym=", mx, "idx(flat)=", idx)
+
+# also print per-mu maxima
+for mu in range(4):
+    rowmax = np.max(np.abs(omega[mu] + omega[mu].T))
+    print("mu",mu,"asym max",rowmax)
+
+
+
+
+
 
 # Tests
 def MinkowskiMetricTest(m,a,t,x,y,z,Kx,Ky,Kz,Jx,Jy,Jz):

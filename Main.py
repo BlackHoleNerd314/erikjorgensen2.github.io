@@ -1,20 +1,36 @@
-from render import Render
-import numpy as np
+# main.py
+import sys
+import pygame
 
+WIDTH, HEIGHT = 720, 480
+FPS = 12
 
-from blackhole import KerrOrbitPair
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Science Engine")
+    clock = pygame.time.Clock()
 
-#dataN = np.array([[0,0,0,0,1.25,-0.75,0,0,0,0,0,1],[0,100,0,0,2.125,0,1.875,0,0,1,0,0],[0,30,40,120,1,0,0,0,0,0,0,0]])
-#N=3
-#data0 = Nbody(dataN,N)
-#print(data0)
+    running = True
+    while running:
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            # Allow quitting with Esc
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
 
-print(KerrOrbitPair(np.array([[0,0,0,0,1,0,0,0,0,0,0,0],[0,100,0,0,1,0,0.1,0,0,0,0,0]])))
+        # Clear screen (black)
+        screen.fill((0, 0, 0))
 
+        # (Nothing drawn — empty window)
 
+        pygame.display.flip()
+        clock.tick(FPS)
 
+    pygame.quit()
+    sys.exit()
 
-
-Render()
-
-#print()
+if __name__ == "__main__":
+    main()

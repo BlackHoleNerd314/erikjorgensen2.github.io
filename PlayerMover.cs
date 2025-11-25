@@ -43,7 +43,6 @@ public class PlayerMover : MonoBehaviour
         //
         
         //Attractor script = GetComponent<Attractor>();
-
         acceleration0 = Vector3.zero;
         foreach (Rigidbody source in Object.FindObjectsByType<Rigidbody>(FindObjectsSortMode.None))
         {
@@ -99,7 +98,7 @@ public class PlayerMover : MonoBehaviour
         float v = velocityWorld.magnitude;
         float gamma = 1f / Mathf.Sqrt(1f - (v * v) / (c * c));
         player.linearVelocity = velocityWorld * gamma;
-        //Time.timeScale = 1f;
+        Time.timeScale = 1f;
 
 
     }
