@@ -187,7 +187,7 @@ X = np.array([0,0,0,0])
 x = np.array([0,1000,0,0])
 V = np.array([0.1,0,0,0])
 v = np.array([1,0,0.1,0])
-#print(UpdateTrajectory(x,v,X,V,10))
+print(UpdateTrajectory(x,v,X,V,10))
 
 
 
