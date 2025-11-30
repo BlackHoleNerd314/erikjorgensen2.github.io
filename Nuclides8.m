@@ -537,7 +537,7 @@ function [data7] = Nuclides8(m3)
 %disp(int2str(data));
   data5 = data4;
   for ind1 = 1:length(data4(:,1))
-    data5(ind1,1) = randp(data4(ind1,1));
+    data5(ind1,1) = round(data4(ind1,1));
   end
   ind2 = length(data4(:,1));
   for ind3 = 1:ind2
